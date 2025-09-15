@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Окружность по алгоритму Брезенхэма</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #controls {
+      margin-bottom: 10px;
+    }
+    canvas {
+      border: 1px solid black;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label for="radius">Радиус: </label>
+    <input type="range" id="radius" min="10" max="200" value="50">
+    <span id="radiusValue">50</span> px
+
+    &nbsp;&nbsp;
+    <label for="color">Цвет окружности: </label>
+    <input type="color" id="color" value="#0000ff">
+  </div>
+
+  <canvas id="canvas" width="500" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const radiusInput = document.getElementById("radius");
+    const radiusValue = document.getElementById("radiusValue");
+    const colorInput = document.getElementById("color");
+
+    let radius = parseInt(radiusInput.value);
+    let center = null;
+    let circleColor = colorInput.value;
+
+    radiusInput.addEventListener("input", () => {
+      radius = parseInt(radiusInput.value);
+      radiusValue.textContent = radius;
+      if (center) drawCircle();
+    });
+
+    colorInput.addEventListener("input", () => {
+      circleColor = colorInput.value;
+      if (center) drawCircle();
+    });
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      center = {
+        x: Math.floor(e.clientX - rect.left),
+        y: Math.floor(e.clientY - rect.top)
+      };
+      drawCircle();
+    });
+
+    function drawCircle() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!center) return;
+
+      ctx.fillStyle = "red";
+      ctx.fillRect(center.x, center.y, 2, 2);
+
+      ctx.fillStyle = circleColor;
+      bresenhamCircle(center.x, center.y, radius);
+    }
+
+    function bresenhamCircle(xc, yc, r) {
+      let x = 0;
+      let y = r;
+      let d = 3 - 2 * r;
+
+      while (x <= y) {
+        putPixel(xc + x, yc + y);
+        putPixel(xc - x, yc + y);
+        putPixel(xc + x, yc - y);
+        putPixel(xc - x, yc - y);
+        putPixel(xc + y, yc + x);
+        putPixel(xc - y, yc + x);
+        putPixel(xc + y, yc - x);
+        putPixel(xc - y, yc - x);
+
+        if (d < 0) {
+          d = d + 4 * x + 6;
+        } else {
+          d = d + 4 * (x - y) + 10;
+          y--;
+        }
+        x++;
+      }
+    }
+
+    function putPixel(x, y) {
+      ctx.fillRect(x, y, 1, 1);
+    }
+  </script>
+</body>
+</html>
